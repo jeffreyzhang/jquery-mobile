@@ -143,7 +143,7 @@ js: init
 	@@cat ${OUTPUT}/${NAME}.tmp.js | sed "s/'order!/'/g"  >> ${OUTPUT}/${NAME}.js
 	@@rm ${OUTPUT}/${NAME}.tmp.js
 	# Build the minified JavaScript file
-	@@node js/r.js -o  baseUrl="js" name=almond include=jquery.mobile exclude=jquery,order out=${OUTPUT}/${NAME}.tmp.min.js wrap=true optimize=uglify
+	@@node js/r.js -o  baseUrl="js" name=almond include=jquery.mobile exclude=jquery,order out=${OUTPUT}/${NAME}.tmp.min.js wrap.start=${WRAP_START} wrap.end=${WRAP_END} optimize=uglify
 	@@echo ${VER_MIN} > ${OUTPUT}/${NAME}.min.js
 	@@cat ${OUTPUT}/${NAME}.tmp.min.js | sed "s/'order!/'/g" >> ${OUTPUT}/${NAME}.min.js
 	@@rm ${OUTPUT}/${NAME}.tmp.min.js
