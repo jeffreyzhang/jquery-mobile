@@ -89,17 +89,14 @@ all: init css js zip notify
 # Build and minify the CSS files
 css: init
 	# Build the CSS file with the theme included
+	@@node js/r.js  -o cssIn=css/themes/default/jquery.mobile.theme.css optimizeCss=none out=${OUTPUT}/${NAME}.tmp.css
 	@@cat LICENSE-INFO.txt | ${VER} > ${OUTPUT}/${NAME}.css
-	@@cat ${CSSTHEMEFILES} ${CSSFILES} >> ${OUTPUT}/${NAME}.css
-	# ..... and then minify it
+	@@cat ${OUTPUT}/${NAME}.tmp.css >> ${OUTPUT}/${NAME}.css
+	@@rm ${OUTPUT}/${NAME}.tmp.css
+	@@node js/r.js  -o cssIn=css/themes/default/jquery.mobile.theme.css optimizeCss=standard out=${OUTPUT}/${NAME}.tmp.min.css
 	@@echo ${VER_MIN} > ${OUTPUT}/${NAME}.min.css
-	@@java -jar build/yuicompressor-2.4.6.jar --type css ${OUTPUT}/${NAME}.css >> ${OUTPUT}/${NAME}.min.css
-	# Build the CSS Structure-only file
-	@@cat LICENSE-INFO.txt | ${VER} > ${OUTPUT}/${STRUCTURE}.css
-	@@cat ${CSSFILES} >> ${OUTPUT}/${STRUCTURE}.css
-	# ..... and then minify it
-	@@echo ${VER_MIN} > ${OUTPUT}/${STRUCTURE}.min.css
-	@@java -jar build/yuicompressor-2.4.6.jar --type css ${OUTPUT}/${STRUCTURE}.css >> ${OUTPUT}/${STRUCTURE}.min.css
+	@@cat ${OUTPUT}/${NAME}.tmp.min.css >> ${OUTPUT}/${NAME}.min.css
+	@@rm ${OUTPUT}/${NAME}.tmp.min.css
 	# ..... and then copy in the images
 	@@cp -R css/themes/${THEME}/images ${OUTPUT}/
 	# Css portion is complete.
@@ -137,16 +134,14 @@ init:
 # Build and minify the JS files
 js: init
 	# Build the JavaScript file
+	@@node js/r.js -o  baseUrl="js" name=almond include=jquery.mobile exclude=jquery,order out=${OUTPUT}/${NAME}.tmp.js wrap=true optimize=none
+	@@node js/r.js -o  baseUrl="js" name=almond include=jquery.mobile exclude=jquery,order out=${OUTPUT}/${NAME}.tmp.min.js wrap=true optimize=uglify
 	@@cat LICENSE-INFO.txt | ${VER} > ${OUTPUT}/${NAME}.js
-	@@cat ${JSFILES} >> ${OUTPUT}/${NAME}.js
-	# ..... and then minify it
-	@@echo ${VER_MIN} > ${OUTPUT}/${NAME}.min.js
-	@@java -XX:ReservedCodeCacheSize=64m \
-				-jar build/google-compiler-20111003.jar \
-				--js ${OUTPUT}/${NAME}.js \
-				--js_output_file ${OUTPUT}/${NAME}.tmp.js
-	@@cat ${OUTPUT}/${NAME}.tmp.js >> ${OUTPUT}/${NAME}.min.js
+	@@cat ${OUTPUT}/${NAME}.tmp.js >> ${OUTPUT}/${NAME}.js
 	@@rm ${OUTPUT}/${NAME}.tmp.js
+	@@echo ${VER_MIN} > ${OUTPUT}/${NAME}.min.js
+	@@cat ${OUTPUT}/${NAME}.tmp.min.js >> ${OUTPUT}/${NAME}.min.js
+	@@rm ${OUTPUT}/${NAME}.tmp.min.js
 	# -------------------------------------------------
 
 
