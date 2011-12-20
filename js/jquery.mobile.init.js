@@ -28,31 +28,37 @@
 
 	// loading div which appears during Ajax requests
 	// will not appear if $.mobile.loadingMessage is false
-	var $loader = $( "<div class='ui-loader ui-body-a ui-corner-all'><span class='ui-icon ui-icon-loading spin'></span><h1></h1></div>" );
+	var $loader = $( "<div class='ui-loader ui-body-a ui-corner-all ui-shadow slideup'><span class='ui-icon ui-icon-loading spin'></span><h1></h1><span class='ui-loading-arrow ui-bar-a'></span></div>" );
 
 	$.extend($.mobile, {
 		// turn on/off page loading message.
 		showPageLoadingMsg: function() {
+			$html.addClass( "ui-loading" );
 			if ( $.mobile.loadingMessage ) {
-				var activeBtn = $( "." + $.mobile.activeBtnClass ).first();
-
+				var lastClicked = $.mobile.clickedTarget;
+				
 				$loader
+					.removeClass("out")
 					.find( "h1" )
 						.text( $.mobile.loadingMessage )
 						.end()
 					.appendTo( $.mobile.pageContainer )
 					// position at y center (if scrollTop supported), above the activeBtn (if defined), or just 100px from top
 					.css({
-						top: $.support.scrollTop && $window.scrollTop() + $window.height() / 2 ||
-						activeBtn.length && activeBtn.offset().top || 100
-					});
+						top: lastClicked && lastClicked.length && lastClicked.offset().top,
+						left: lastClicked && lastClicked.length && lastClicked.offset().left + lastClicked.width() / 2
+					})
+					.addClass("in")
+					
 			}
 
-			$html.addClass( "ui-loading" );
+			
+			
 		},
 
 		hidePageLoadingMsg: function() {
 			$html.removeClass( "ui-loading" );
+			$loader.removeClass("in").addClass("out")
 		},
 
 		// find and enhance the pages in the dom and transition to the first page.

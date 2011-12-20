@@ -1287,6 +1287,8 @@
 			}
 
 			var link = findClosestLink( event.target );
+			$.mobile.clickedTarget = $( event.target );
+			
 			if ( link ) {
 				if ( path.parseUrl( link.getAttribute( "href" ) || "#" ).hash !== "#" ) {
 					removeActiveLinkClass( true );
