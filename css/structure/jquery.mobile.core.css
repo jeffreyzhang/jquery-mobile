@@ -57,10 +57,10 @@ div.ui-mobile-viewport { overflow-x: hidden; }
 
 /* loading screen */
 .ui-loading .ui-loader { display: block; }
-.ui-loader { display: none; position: absolute; z-index: 10000; left: 0; top: 50%; margin-right: -40px; margin-top: -47px; padding: 2px;  }
+.ui-loader { display: none; position: absolute; z-index: 10000; left: 0; opacity: .8; width: 16px; height: 16px; top: 50%; margin-left: -32px; margin-top: -12px; padding: 3px;  -webkit-border-radius: 18px; -moz-border-radius: 18px; border-radius: 18px; }
 .ui-loader h1 { font-size: 0px; width: 0; height: 0; overflow: hidden; }
-.ui-loader .ui-icon {  display: block; margin: 0; width: 35px; height: 35px; background-color: transparent; }
-.ui-loading-arrow { background: none; border-bottom: 0; position: absolute; left: 50%; margin-left: -5px; bottom: -6px; width: 0; border-top-width: 7px; border-left: 6px solid transparent; border-right: 6px solid transparent; }
+.ui-loader .ui-icon {  display: block; margin: 0; width: 16px; height: 16px; opacity: .8; background-color: transparent; }
+
 /*fouc*/
 .ui-mobile-rendering > * { visibility: hidden; }
 

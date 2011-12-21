@@ -30,11 +30,7 @@ sleep(5);
 			
 			<h2>Loader tested - wheee!</h2>
 			
-			<p> Content goes here, etc.Test the loader from a <a href="testingloader2.php">link instead</a>!</p> 
 			
-			<p><a href="testingloader2.php" data-role="button">Or a button</a></p>
-			
-
 			<p> Content goes here, etc.jQuery Mobile is built upon standard, semantic HTML, allowing pages to be accessible to the broadest range of devices possible. For A-Grade browsers, many of the components in jQuery Mobile leverage techniques such as focus management, keyboard navigation, and HTML attributes specified in the W3C's <a href="http://www.w3.org/TR/wai-aria/">WAI-ARIA</a> specification.</p> 
 			
 			<p> Content goes here, etc.jQuery Mobile is built upon standard, semantic HTML, allowing pages to be accessible to the broadest range of devices possible. For A-Grade browsers, many of the components in jQuery Mobile leverage techniques such as focus management, keyboard navigation, and HTML attributes specified in the W3C's <a href="http://www.w3.org/TR/wai-aria/">WAI-ARIA</a> specification.</p> 
