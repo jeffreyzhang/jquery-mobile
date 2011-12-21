@@ -534,7 +534,7 @@
 			toPage.animationComplete(function(){
 				toPage.removeClass("fade in");
 				
-				deferred.resolve();	
+				
 			});
 			
 				
@@ -542,9 +542,11 @@
 		
 		if( fromPage ){
 			fromPage.animationComplete( done );
+			deferred.resolve();	
 		}
 		else{
 			done();
+			deferred.resolve();	
 		}
 		
 		return deferred.promise();
