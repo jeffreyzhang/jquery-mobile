@@ -492,14 +492,18 @@
 		var active	= $.mobile.urlHistory.getActive(),
 			touchOverflow = $.support.touchOverflow && $.mobile.touchOverflowEnabled,
 			toScroll = active.lastScroll || ( touchOverflow ? 0 : $.mobile.defaultHomeScroll ),
-			screenHeight = getScreenHeight();
+			screenHeight = getScreenHeight(),
+			deferred = new $.Deferred();
+			
+			
+			
 
 		// Scroll to top, hide addr bar
-		window.scrollTo( 0, $.mobile.defaultHomeScroll );
+		//window.scrollTo( 0, $.mobile.defaultHomeScroll );
 
 		if( fromPage ) {
 			//trigger before show/hide events
-			fromPage.data( "page" )._trigger( "beforehide", null, { nextPage: toPage } );
+			fromPage.addClass( "fade out" ).data( "page" )._trigger( "beforehide", null, { nextPage: toPage } );
 		}
 
 		if( !touchOverflow){
@@ -510,7 +514,42 @@
 
 		//clear page loader
 		$.mobile.hidePageLoadingMsg();
+		
+		function done(){
+			window.scrollTo( 0, $.mobile.defaultHomeScroll );
+			
+			//trigger show/hide events
+			if( fromPage ) {
+				if( !touchOverflow ){
+					fromPage.height( "" );
+				}
 
+				fromPage.removeClass("fade out ui-page-active").data( "page" )._trigger( "hide", null, { nextPage: toPage } );
+			}
+			
+			
+			//trigger pageshow, define prevPage as either fromPage or empty jQuery obj
+			toPage.addClass( "fade in ui-page-active" ).data( "page" )._trigger( "show", null, { prevPage: fromPage || $( "" ) } );
+			
+			toPage.animationComplete(function(){
+				toPage.removeClass("fade in");
+				
+				deferred.resolve();	
+			});
+			
+				
+		}
+		
+		if( fromPage ){
+			fromPage.animationComplete( done );
+		}
+		else{
+			done();
+		}
+		
+		return deferred.promise();
+
+		/*
 		if( touchOverflow && toScroll ){
 
 			toPage.addClass( "ui-mobile-pre-transition" );
@@ -525,38 +564,10 @@
 				toPage.scrollTop( toScroll );
 			}
 		}
-
-		//find the transition handler for the specified transition. If there
-		//isn't one in our transitionHandlers dictionary, use the default one.
-		//call the handler immediately to kick-off the transition.
-		var th = $.mobile.transitionHandlers[transition || "none"] || $.mobile.defaultTransitionHandler,
-			promise = th( transition, reverse, toPage, fromPage );
-
-		promise.done(function() {
-			//reset toPage height back
-			if( !touchOverflow ){
-				toPage.height( "" );
-			}
-
-			// Jump to top or prev scroll, sometimes on iOS the page has not rendered yet.
-			if( !touchOverflow ){
-				$.mobile.silentScroll( toScroll );
-			}
-
-			//trigger show/hide events
-			if( fromPage ) {
-				if( !touchOverflow ){
-					fromPage.height( "" );
-				}
-
-				fromPage.data( "page" )._trigger( "hide", null, { nextPage: toPage } );
-			}
-
-			//trigger pageshow, define prevPage as either fromPage or empty jQuery obj
-			toPage.data( "page" )._trigger( "show", null, { prevPage: fromPage || $( "" ) } );
-		});
-
-		return promise;
+		*/
+		
+		
+	
 	}
 
 	//simply set the active page's minimum height to screen height, depending on orientation
