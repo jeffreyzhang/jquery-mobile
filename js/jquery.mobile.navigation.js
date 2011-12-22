@@ -495,7 +495,7 @@
 			screenHeight = getScreenHeight(),
 			deferred = new $.Deferred();
 			
-			
+
 			
 
 		// Scroll to top, hide addr bar
@@ -503,7 +503,7 @@
 
 		if( fromPage ) {
 			//trigger before show/hide events
-			fromPage.addClass( "fade out" ).data( "page" )._trigger( "beforehide", null, { nextPage: toPage } );
+fromPage.addClass( "slide out" ).data( "page" )._trigger( "beforehide", null, { nextPage: toPage } );
 		}
 
 		if( !touchOverflow){
@@ -513,10 +513,34 @@
 		toPage.data( "page" )._trigger( "beforeshow", null, { prevPage: fromPage || $( "" ) } );
 
 		//clear page loader
-		$.mobile.hidePageLoadingMsg();
 		
+		var tpcontent = toPage.find(".ui-content,.ui-footer").length,
+		toclass = "fade";
+		
+		toPage.find(".ui-content,.ui-footer").addClass("ui-hidden-accessible")
+		
+		toPage.addClass( toclass + " in ui-page-active" ).data( "page" )._trigger( "show", null, { prevPage: fromPage || $( "" ) } );
+		toPage.animationComplete(done);
+		
+		if(!fromPage){
+		deferred.resolve();	
+		}
 		function done(){
-			window.scrollTo( 0, $.mobile.defaultHomeScroll );
+			//window.scrollTo( 0, $.mobile.defaultHomeScroll );
+			
+			
+			if(tpcontent ){
+				
+				setTimeout( function(){
+					toPage.find(".ui-content,.ui-footer").removeClass("ui-hidden-accessible").addClass("fade in");
+					setTimeout( function(){
+					$.mobile.hidePageLoadingMsg();
+					}, 100);
+					}, 400)
+			}
+			else{
+				$.mobile.hidePageLoadingMsg();
+			}
 			
 			//trigger show/hide events
 			if( fromPage ) {
@@ -524,30 +548,21 @@
 					fromPage.height( "" );
 				}
 
-				fromPage.removeClass("fade out ui-page-active").data( "page" )._trigger( "hide", null, { nextPage: toPage } );
+				fromPage.removeClass(toclass + " out ui-page-active").data( "page" )._trigger( "hide", null, { nextPage: toPage } );
 			}
 			
 			
-			//trigger pageshow, define prevPage as either fromPage or empty jQuery obj
-			toPage.addClass( "fade in ui-page-active" ).data( "page" )._trigger( "show", null, { prevPage: fromPage || $( "" ) } );
 			
-			toPage.animationComplete(function(){
-				toPage.removeClass("fade in");
+			toPage.removeClass("fade in");
 				
-				
-			});
+				$html.removeClass("ui-mobile-viewport-transitioning")
+			deferred.resolve();	
 			
 				
 		}
 		
-		if( fromPage ){
-			fromPage.animationComplete( done );
-			deferred.resolve();	
-		}
-		else{
-			done();
-			deferred.resolve();	
-		}
+		
+	
 		
 		return deferred.promise();
 
@@ -802,23 +817,37 @@
 		if( pblEvent.isDefaultPrevented() ){
 			return deferred.promise();
 		}
-
+		
+		
+		
 		if ( settings.showLoadMsg ) {
+			var loadMsgDelay,
+			hideMsg = function(){
 
-			// This configurable timeout allows cached pages a brief delay to load without showing a message
-			var loadMsgDelay = setTimeout(function(){
-					$.mobile.showPageLoadingMsg();
-				}, settings.loadMsgDelay ),
+							// Stop message show timer
+							clearTimeout( loadMsgDelay );
 
-				// Shared logic for clearing timeout and removing message.
-				hideMsg = function(){
+							// Hide loading message
+							//$.mobile.hidePageLoadingMsg();
+						};
+						
+						$html.addClass("ui-mobile-viewport-transitioning")
+			$(".ui-page-active")
+				.addClass( "fade out" )
+				.animationComplete(function(){
+					window.scrollTo( 0, $.mobile.defaultHomeScroll );
+					// This configurable timeout allows cached pages a brief delay to load without showing a message
+					loadMsgDelay = setTimeout(function(){
+							//$.mobile.showPageLoadingMsg();
+						}, settings.loadMsgDelay );
 
-					// Stop message show timer
-					clearTimeout( loadMsgDelay );
+						$.mobile.showPageLoadingMsg();
+					
+				})
+			
+			
 
-					// Hide loading message
-					$.mobile.hidePageLoadingMsg();
-				};
+			
 		}
 
 		if ( !( $.mobile.allowCrossDomainPages || path.isSameDomain( documentUrl, absUrl ) ) ) {

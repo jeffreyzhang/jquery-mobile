@@ -28,7 +28,7 @@
 
 	// loading div which appears during Ajax requests
 	// will not appear if $.mobile.loadingMessage is false
-	var $loader = $( "<div class='ui-loader ui-body-d ui-corner-all ui-shadow-inset fade'><span class='ui-icon ui-icon-loading spin'></span><h1></h1></div>" );
+	var $loader = $( "<div class='ui-loader ui-body-b ui-corner-all ui-shadow-inset fade'><span class='ui-icon ui-icon-loading spin'></span><h1></h1></div>" );
 
 	$.extend($.mobile, {
 		// turn on/off page loading message.
@@ -44,10 +44,6 @@
 						.end()
 					.appendTo( $.mobile.pageContainer )
 					// position at y center (if scrollTop supported), above the activeBtn (if defined), or just 100px from top
-					.css({
-						top: lastClicked && lastClicked.length && lastClicked.offset().top + Math.max( lastClicked.height(), lastClicked.outerHeight() ) / 2,
-						left: lastClicked && lastClicked.length && lastClicked.offset().left + Math.max( lastClicked.width(), lastClicked.outerWidth() )
-					})
 					.addClass("in")
 					
 			}
