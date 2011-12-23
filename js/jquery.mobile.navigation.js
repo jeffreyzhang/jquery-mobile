@@ -495,7 +495,7 @@
 			screenHeight = getScreenHeight(),
 			deferred = new $.Deferred();
 			
-			
+			$html.addClass("ui-mobile-viewport-transitioning")
 			
 
 		// Scroll to top, hide addr bar
@@ -534,7 +534,7 @@
 			toPage.animationComplete(function(){
 				toPage.removeClass("fade in");
 				
-				
+				$html.removeClass("ui-mobile-viewport-transitioning")
 			});
 			
 				
