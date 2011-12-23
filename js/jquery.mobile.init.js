@@ -28,7 +28,7 @@
 
 	// loading div which appears during Ajax requests
 	// will not appear if $.mobile.loadingMessage is false
-	var $loader = $( "<div class='ui-loader ui-body-b ui-corner-all ui-shadow-inset fade'><span class='ui-icon ui-icon-loading spin'></span><h1></h1></div>" );
+	var $loader = $( "<div class='ui-loader ui-body-b ui-corner-all ui-shadow-inset fade'><span class='ui-icon ui-icon-loading'></span><img src='css/themes/default/images/ajax-loader.gif' /><h1 class='accessible-hidden'></h1></div>" );
 
 	$.extend($.mobile, {
 		// turn on/off page loading message.
