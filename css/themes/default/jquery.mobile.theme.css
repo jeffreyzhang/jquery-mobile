@@ -975,7 +975,7 @@ a.ui-link-inherit {
 
 /* loading icon */
 .ui-icon-loading {
-	background-image: url(images/ajax-loader.png);
+	background: url(images/ajax-loader.gif);
 	background-size: 36px 36px;
 }
 
