@@ -833,9 +833,14 @@ fromPage.addClass( "slide out" ).data( "page" )._trigger( "beforehide", null, { 
 						
 						$html.addClass("ui-mobile-viewport-transitioning")
 			$(".ui-page-active")
-				.addClass( "fade out" )
+				.addClass( "fade out" );
+			
+			$(".ui-page-active")	
 				.animationComplete(function(){
+					$(this).removeClass( "fade out ui-page-active ");
 					window.scrollTo( 0, $.mobile.defaultHomeScroll );
+					
+					
 					// This configurable timeout allows cached pages a brief delay to load without showing a message
 					loadMsgDelay = setTimeout(function(){
 							//$.mobile.showPageLoadingMsg();

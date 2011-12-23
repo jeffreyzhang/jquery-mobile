@@ -18,6 +18,7 @@ $.widget( "mobile.page", $.mobile.widget, {
 		this.element
 			.attr( "tabindex", "0" )
 			.addClass( "ui-page ui-body-" + this.options.theme );
+			
 	},
 
 	keepNativeSelector: function() {
