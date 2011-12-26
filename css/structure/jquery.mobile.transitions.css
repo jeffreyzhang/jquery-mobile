@@ -20,22 +20,19 @@ Built by David Kaneda and maintained by Jonathan Stark.
 
 
 .slide.out {
-	-webkit-transform: translateX(-100%);
+	opacity: 0;
 	-webkit-animation-name: slideouttoleft;
 }
 
 .slide.in {
-	-webkit-transform: translateX(0);
 	-webkit-animation-name: slideinfromright;
 }
 
 .slide.out.reverse {
-	-webkit-transform: translateX(100%);
 	-webkit-animation-name: slideouttoright;
 }
 
 .slide.in.reverse {
-	-webkit-transform: translateX(0);
 	-webkit-animation-name: slideinfromleft;
 }
 
@@ -84,23 +81,23 @@ Built by David Kaneda and maintained by Jonathan Stark.
 }
 
 @-webkit-keyframes slideinfromright {
-    from { -webkit-transform: translateX(100%); }
-    to { -webkit-transform: translateX(0); }
+    from { left: 210%; }
+    to { left: 0; }
 }
 
 @-webkit-keyframes slideinfromleft {
-    from { -webkit-transform: translateX(-100%); }
-    to { -webkit-transform: translateX(0); }
+    from { left: -1000px; }
+    to { left: 0; }
 }
 
 @-webkit-keyframes slideouttoleft {
-    from { -webkit-transform: translateX(0); }
-    to { -webkit-transform: translateX(-100%); }
+    from { opacity: 1; left: auto; right: 0%; }
+    to { opacity: 1; left: auto; right: 100%; }
 }
 
 @-webkit-keyframes slideouttoright {
-    from { -webkit-transform: translateX(0); }
-    to { -webkit-transform: translateX(100%); }
+    from { opacity: 1; left: 0; }
+    to { opacity: .9; left: 200%; }
 }
 
 @-webkit-keyframes slideinfromtop {

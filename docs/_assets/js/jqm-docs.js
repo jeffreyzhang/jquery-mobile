@@ -39,10 +39,10 @@ function setDefaultTransition(){
 		trans ="slide";
 
 	if( winwidth >= 1000 ){
-		trans = "none";
+		trans = "slide"; // trans = "none";
 	}
 	else if( winwidth >= 650 ){
-		trans = "fade";
+		trans = "slide";
 	}
 
 	$.mobile.defaultPageTransition = trans;
