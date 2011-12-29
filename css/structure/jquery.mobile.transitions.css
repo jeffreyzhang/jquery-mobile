@@ -14,10 +14,9 @@
 Built by David Kaneda and maintained by Jonathan Stark.
 */
 .in, .out {
-	-webkit-animation-timing-function: ease-in-out;
+	-webkit-animation-timing-function: cubic-bezier(.06, .16, .14, .90);
 	-webkit-animation-duration: 350ms;
 }
-
 
 .slide.out {
 	-webkit-transform: translateX(-100%);
@@ -83,24 +82,25 @@ Built by David Kaneda and maintained by Jonathan Stark.
 	-webkit-animation-name: slideouttotop;
 }
 
+
 @-webkit-keyframes slideinfromright {
-    from { -webkit-transform: translateX(100%); }
-    to { -webkit-transform: translateX(0); }
+    0% { -webkit-transform: translateX(100%) scale(.99); }
+	100% { -webkit-transform: translateX(0%) scale(1); }
+}
+
+@-webkit-keyframes slideinfromright {
+    0% { -webkit-transform: translateX(100%) scale(.99);  }
+	100% { -webkit-transform: translateX(0%) scale(1);  }
 }
 
 @-webkit-keyframes slideinfromleft {
-    from { -webkit-transform: translateX(-100%); }
-    to { -webkit-transform: translateX(0); }
+    0% { -webkit-transform: translateX(-100%) scale(.99); }
+    100% { -webkit-transform: translateX(0%) scale(1); }
 }
 
 @-webkit-keyframes slideouttoleft {
-    from { -webkit-transform: translateX(0); }
-    to { -webkit-transform: translateX(-100%); }
-}
-
-@-webkit-keyframes slideouttoright {
-    from { -webkit-transform: translateX(0); }
-    to { -webkit-transform: translateX(100%); }
+    0% { -webkit-transform: translateX(0%) scale(.99); }
+	100% { -webkit-transform: translateX(-100%) scale(1); }
 }
 
 @-webkit-keyframes slideinfromtop {
