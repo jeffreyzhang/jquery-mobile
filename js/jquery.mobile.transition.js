@@ -11,7 +11,7 @@ function css3TransitionHandler( name, reverse, $to, $from ) {
 		viewportClass = "ui-mobile-viewport-transitioning viewport-" + name,
 		doneFunc = function() {
 
-			$to.add( $from ).removeClass( "out in reverse " + name );
+			$to.add( $from ).removeClass( "out in reverse " + name );			
 
 			if ( $from && $from[ 0 ] !== $to[ 0 ] ) {
 				$from.removeClass( $.mobile.activePageClass );
@@ -27,9 +27,32 @@ function css3TransitionHandler( name, reverse, $to, $from ) {
 	$to.parent().addClass( viewportClass );
 
 	if ( $from ) {
-		$from.addClass( name + " out" + reverseClass );
+		if ( $from.jqmData('role') === "dialog" ) {
+			// Transitioning away from a dialog.
+			
+			$from.addClass( "fade out" + reverseClass );			
+			$to.addClass( $.mobile.activePageClass + " fade out" + reverseClass);
+		} else {
+			// Transitioning away from a normal page.
+			$from.addClass( name + " out" + reverseClass );
+		}
 	}
-	$to.addClass( $.mobile.activePageClass + " " + name + " in" + reverseClass );
+	
+	if ( $to.jqmData('role') === "dialog" ) {
+		// Transitioning to a dialog.
+		
+		// Fade in the dialog overlay:
+		$to.addClass( $.mobile.activePageClass + " fade in" + reverseClass );
+		
+		// Apply the set transition to the dialog itself:
+		$(":first", $to).addClass( name + " in" + reverseClass );
+		
+	} else if( $from.jqmData('role') !== 'dialog' ){
+		// Transition has nothing to do with a dialog.
+		$to.addClass( $.mobile.activePageClass + " " + name + " in" + reverseClass );
+	}
+
+
 
 	return deferred.promise();
 }
