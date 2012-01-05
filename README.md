@@ -1,4 +1,4 @@
-jQuery Mobile Framework
+jQuery Mobile FrameworkG
 =======================
 [Official Site: http://jquerymobile.com](http://jquerymobile.com)
 
@@ -105,3 +105,4 @@ theme's name. For testing locally, make sure the index.php file is copied as wel
     make THEME=YourThemeName
 
 6. The compiled files will be located in the "compiled" folder in the root of jQuery-Mobile.
+
