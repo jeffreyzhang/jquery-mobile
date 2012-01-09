@@ -32,7 +32,7 @@
 		<a href="#dialog" data-role="button" data-rel="dialog" data-transition="none">none</a>
 		<a href="#dialog" data-role="button" data-rel="dialog" data-transition="fade">fade</a>
 		<a href="#dialog" data-role="button" data-rel="dialog" data-transition="pop">pop</a>
-		<a href="#dialog" data-role="button" data-rel="dialog" data-transition="flip">flip*</a>
+		<a href="#dialog" data-role="button" data-rel="dialog" data-transition="flip">flip</a>
 	</div>
 	<div class="ui-block-b">
 			<a href="#dialog" data-role="button" data-rel="dialog" data-transition="slide">slide</a>
@@ -44,8 +44,6 @@
 
 <p><strong>Transitions were originally inspired by <a href="http://www.jqtouch.com/">jQtouch</a></strong> They've since been rebuilt, but props to David Kaneda and Jonathan Stark for the initial guidance.</p>
 
-<p>NOTE: The flip transition will only work on platforms with 3D Transform support. Devices that lack 3D support,  will get a fade transition.</p>
-
 
 	<h2>Setting a transition on a link or form submit</h2>
 	<p>By default, the framework applies a <strong>fade</strong> transition. To set a custom transition effect, add the <code>data-transition</code> attribute to the link. </p>
@@ -55,6 +53,11 @@
 </code></code>
 		
 		<p>When the Back button is pressed, the framework will automatically apply the reverse version of the transition that was used to show the page. To specify that the reverse version of a transition should be used, add the <code>data-direction="reverse"</code> attribute to a link. Note: (this was formerly <code>data-back="true"</code>, which will remain supported until 1.0)</p>
+		
+		<h2>Defining fallback transitions</h2>
+		<p>By default, all transitions except fade require 3D Transform support. Devices that lack 3D support will get a fade transition, regardless of the transition specified. We do this to exclude poorly-performing platforms like Android 2.x from advanced transitions and ensure they still have a smooth experience. Note that there may be platforms such as Android 3.0 that technically support 3D transforms, but still have poor animation performance so this won't guarantee that every browser will be 100% flicker-free but we try to target this responsibly.</p>
+		<p>The fallback transition for browsers that don't support 3D transforms can be configured for each transition type, but by default we specify "fade" as the fallback. For example, this will set the fallback transition for the slideout transition to "none":</p>
+		<code>$.mobile.fallbackTransition.slideout = "none"</code>
 				
 		<h2>Global configuration of transitions</h2>
 		
@@ -267,7 +270,7 @@ $.mobile.defaultTransitionHandler = myTransitionHandler;
 				<a href="#dialog" data-role="button" data-rel="dialog" data-transition="none">none</a>
 				<a href="#dialog" data-role="button" data-rel="dialog" data-transition="fade">fade</a>
 				<a href="#dialog" data-role="button" data-rel="dialog" data-transition="pop">pop</a>
-				<a href="#dialog" data-role="button" data-rel="dialog" data-transition="flip">flip*</a>
+				<a href="#dialog" data-role="button" data-rel="dialog" data-transition="flip">flip</a>
 			</div>
 			<div class="ui-block-b">
 					<a href="#dialog" data-role="button" data-rel="dialog" data-transition="slide">slide</a>
@@ -277,7 +280,6 @@ $.mobile.defaultTransitionHandler = myTransitionHandler;
 			</div>
 		</div><!-- /grid-a -->
 		
-		<p><a href="#dialog" data-role="button" data-rel="dialog" data-transition="rotate">rotate</a></p>
 
 				</div><!--/content-primary -->		
 
