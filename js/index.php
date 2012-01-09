@@ -20,6 +20,8 @@ $files = array(
 	'jquery.mobile.transition.slidedown.js',
 	'jquery.mobile.transition.slideup.js',
 	'jquery.mobile.transition.flip.js',
+	'jquery.mobile.transition.flow.js',
+	'jquery.mobile.transition.turn.js',
 	'jquery.mobile.degradeInputs.js',
 	'jquery.mobile.dialog.js',
 	'jquery.mobile.page.sections.js',
