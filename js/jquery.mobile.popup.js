@@ -61,7 +61,7 @@ define( [ "jquery", "jquery.mobile.widget" ], function( $ ) {
 			} );
 
 			ui.screen.bind( "vclick", function( e ) {
-				self.close();
+				window.history.back();
 				e.preventDefault();
 			} );
 		},
@@ -79,7 +79,8 @@ define( [ "jquery", "jquery.mobile.widget" ], function( $ ) {
 				if ( matches && matches.length > 1 ) {
 					currentTheme = matches[ 1 ];
 					break;
-				} else {
+				}
+				else {
 					currentTheme = null;
 				}
 			}
@@ -139,7 +140,8 @@ define( [ "jquery", "jquery.mobile.widget" ], function( $ ) {
 
 			if ( this[setter] !== undefined ) {
 				this[setter]( value );
-			} else {
+			}
+			else {
 				$.mobile.widget.prototype._setOption.apply( this, arguments );
 			}
 		},
@@ -160,7 +162,8 @@ define( [ "jquery", "jquery.mobile.widget" ], function( $ ) {
 
 			if ( roomtop > menuHeight / 2 && roombot > menuHeight / 2 ) {
 				newtop = y - halfheight;
-			} else {
+			}
+			else {
 				// 30px tolerance off the edges
 				newtop = roomtop > roombot ? scrollTop + screenHeight - menuHeight - 30 : scrollTop + 30;
 			}
@@ -168,14 +171,17 @@ define( [ "jquery", "jquery.mobile.widget" ], function( $ ) {
 			// If the menuwidth is smaller than the screen center is
 			if ( menuWidth < maxwidth ) {
 				newleft = ( screenWidth - menuWidth ) / 2;
-			} else {
+			}
+			else {
 				//otherwise insure a >= 30px offset from the left
 				newleft = x - menuWidth / 2;
 
 				// 10px tolerance off the edges
 				if ( newleft < 10 ) {
 					newleft = 10;
-				} else if ( ( newleft + menuWidth ) > screenWidth ) {
+				}
+				else
+				if ( ( newleft + menuWidth ) > screenWidth ) {
 					newleft = screenWidth - menuWidth - 10;
 				}
 			}
@@ -185,21 +191,43 @@ define( [ "jquery", "jquery.mobile.widget" ], function( $ ) {
 
 		_bindHashChange: function() {
 			var self = this;
-			$( window ).one( "hashchange.popup", function() {
-				self.close( true );
+			console.log(self.element.attr("id") + ": " + self._id + ": _bindHashChange: Entering and binding closer: this._id = " +self._id);
+			$( window ).one( "hashchange.popup" + self._id, function() {
+				console.log(self.element.attr("id") + ": " + self._id + ": _bindHashChange: closer: stack is: ")
+				$.each($.mobile.popup._topmostPopup, function(key, value) {
+					console.log(value);
+				});
+				if ( $.mobile.popup._topmostPopup[$.mobile.popup._topmostPopup.length - 1] !== self._id ) {
+					console.log(self.element.attr("id") + ": " + self._id + ": _bindHashChange: closer: I am not the topmost popup so re-binding closer");
+					self._bindHashChange();
+				}
+				else {
+					console.log(self.element.attr("id") + ": " + self._id + ": _bindHashChange: closer: closing");
+					self._realClose( true );
+					console.log(self.element.attr("id") + ": " + self._id + ": _bindHashChange: closer: popping");
+					$.mobile.popup._topmostPopup.pop();
+					console.log(self.element.attr("id") + ": " + self._id + ": _bindHashChange: closer: popped. Stack is:");
+					$.each($.mobile.popup._topmostPopup, function(key, value) {
+						console.log(value);
+					});
+				}
 			} );
 		},
 
 		_unbindHashChange: function() {
-			$( window ).unbind( "hashchange.popup" );
+			console.log(this.element.attr("id") + ": _unbindHashChange: unbinding binder");
+			$( window ).unbind( "hashchange.popup" + this._id );
 		},
 
 		open: function( x, y ) {
+
 			if ( !this._isOpen ) {
 				var self = this,
 					coords = this._placementCoords(
 							(undefined === x ? window.innerWidth / 2 : x),
 							(undefined === y ? window.innerHeight / 2 : y) );
+
+				console.log(self.element.attr("id") + ": " + self._id + ": open: Entering");
 
 				this._ui.screen
 						.height( $( document ).height() )
@@ -221,18 +249,31 @@ define( [ "jquery", "jquery.mobile.widget" ], function( $ ) {
 						} );
 
 				// listen for hashchange that will occur when we set it to null dialog hash
+				console.log(self.element.attr("id") + ": " + self._id + ": open: Binding binder");
 				$( window ).one( "hashchange", function() {
+					console.log(self.element.attr("id") + ": " + self._id + ": open: Calling binder");
 					self._bindHashChange();
 				} );
 
 				// set hash to non-linkable dialog url
-				$.mobile.path.set( "&ui-state=dialog" );
+				this._id = $.mobile.path.pushSubpage( "popup", this._id );
+				$.mobile.popup._topmostPopup.push(this._id);
+				console.log(self.element.attr("id") + ": " + this._id + ": open: Pushed. Stack is:");
+				$.each($.mobile.popup._topmostPopup, function(key, value) {
+					console.log(value);
+				});
 
 				this._isOpen = true;
 			}
 		},
 
-		close: function(fromHash) {
+		close: function() {
+			if ($.mobile.popup._topmostPopup[$.mobile.popup._topmostPopup.length - 1] === this._id) {
+				window.history.back();
+			}
+		},
+
+		_realClose: function(fromHash) {
 			if ( this._isOpen ) {
 				var self = this,
 					hideScreen = function() {
@@ -254,20 +295,21 @@ define( [ "jquery", "jquery.mobile.widget" ], function( $ ) {
 
 				if ( this.options.fade ) {
 					this._ui.screen.animate( {opacity: 0.0}, "fast", hideScreen );
-				} else {
+				}
+				else {
 					hideScreen();
 				}
 
 				// unbind listener that comes with opening popup
+				console.log(self.element.attr("id") + ": " + this._id + ": close: calling _unbindHashChange");
 				this._unbindHashChange();
 
 				// if the close event did not come from an internal hash listener, reset URL back
-				if ( !fromHash ) {
-					window.history.back();
-				}
 			}
 		}
 	} );
+
+	$.mobile.popup._topmostPopup = [];
 
 	$.mobile.popup.bindPopupToButton = function( btn, popup ) {
 		if ( btn.length === 0 || popup.length === 0 ) return;

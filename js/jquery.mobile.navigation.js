@@ -16,6 +16,91 @@ define( [
 	var $window = $( window ),
 		$html = $( 'html' ),
 		$head = $( 'head' ),
+		subpageUtils = {
+			counters: {},
+			searchToHash: function(q) {
+				var retHash = [];
+
+				q = q.substring(1); // Remove leading '?'
+				if (q !== "") {
+					$.each(q.split("&"), function(key, value) {
+						var ar = value.split("=");
+						// Convert "name=value" to { name : value }
+						if (ar.length === 2) {
+							var retHashEntry = {};
+							retHashEntry[ar[0]] = ar[1];
+							retHash.push(retHashEntry);
+						}
+						// If it's not of the form "name=value" treat it as a string
+						else
+							retHash.push(value);
+					});
+				}
+
+				return retHash;
+			},
+			hashToSearch: function(qHash) {
+				var ret = "";
+
+				$.each(qHash, function(key, value) {
+					if (typeof value === "object") {
+						$.each(value, function(key, objVal) {
+							ret += key + "=" + objVal;
+						});
+					}
+					else {
+						ret += value;
+					}
+					if (key < qHash.length - 1)
+						ret += "&";
+				});
+
+				return ret;
+			},
+			makeParams: function(key) {
+				var sHashKey = "jqm" + key + "List",
+			    	sHash = subpageUtils.searchToHash(location.hash),
+			    	list = [];
+
+				for (var Nix = 0 ; Nix < sHash.length ; Nix++) {
+					if (typeof sHash[Nix] === "object" && sHash[Nix][sHashKey] !== undefined) {
+						list = (sHash[Nix][sHashKey] === "" ? [] : sHash[Nix][sHashKey].split(","));
+						break;
+					}
+				}
+
+				for (var Nix = 0 ; Nix < list.length ; Nix++) {
+					list[Nix] = parseInt(list[Nix]);
+				}
+
+				return {
+					sHashKey : sHashKey,
+					sHash    : sHash,
+					list     : list
+				};
+			},
+			recreateSearch: function(params) {
+				var keyIdx;
+
+				// Try to find the key in the existing hash
+				for (keyIdx = 0 ; keyIdx < params.sHash.length ; keyIdx++) {
+					if (typeof params.sHash[keyIdx] === "object" && params.sHash[keyIdx][params.sHashKey] !== undefined) {
+						break;
+					}
+				}
+
+				// If not found, create it
+				if (keyIdx === params.sHash.length) {
+					var valToPush = {};
+					valToPush[params.sHashKey] = "";
+					params.sHash.push(valToPush);
+				}
+
+				// Set the value to the new list and update the search
+				params.sHash[keyIdx][params.sHashKey] = params.list.join(",");
+				location.hash = subpageUtils.hashToSearch(params.sHash);
+			}
+		},
 
 		//url path helpers for use in relative url management
 		path = {
@@ -175,7 +260,7 @@ define( [
 				if( newPath === undefined ) {
 					newPath = location.hash;
 				}
-				return path.stripHash( newPath ).replace( /[^\/]*\.[^\/*]+$/, '' );
+				return path.stripHash( newPath ).replace( /[^\/]*\.[^\/*]+$/, '' ); // */
 			},
 
 			//return the substring of a filepath before the sub-page key, for making a server request
@@ -253,6 +338,28 @@ define( [
 					return ( u.hash && ( u.hrefNoHash === documentUrl.hrefNoHash || ( documentBaseDiffers && u.hrefNoHash === documentBase.hrefNoHash ) ) );
 				}
 				return (/^#/).test( u.href );
+			},
+
+			// Add a subpage id to a given search key, generating a new id for it if none was passed in
+			pushSubpage: function(key, id) {
+				var params = subpageUtils.makeParams(key),
+				    ret;
+
+				// If this key has not been seen before, we don't care what id was passed in
+				if (subpageUtils.counters[key] === undefined) {
+					subpageUtils.counters[key] = 0;
+					id = undefined;
+				}
+
+				// Increment the value at the key if the id is undefined and return the new id
+				ret = ((id === undefined) ? (subpageUtils.counters[key]++) : id);
+
+				// Reassemble the search using the updated list
+				params.list.push(ret);
+				subpageUtils.recreateSearch(params);
+
+				// return the id
+				return ret;
 			}
 		},
 
