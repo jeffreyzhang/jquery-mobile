@@ -9,6 +9,193 @@ define( [ "jquery",
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
+	// Configure whether popups set only one history entry for all popups on the page, or whether each popup advances the
+	// history by setting
+	//   $.mobile.popupsHaveOneHistoryEntry = true;
+	// By default, each popup advances the history
+
+	var popupStack = $.extend( {
+				// Common routines
+
+				_stack : [],
+
+				push: function( popup ) {
+					if ( 0 === this._stack.length ) {
+						var self = this;
+
+						$( window ).bind( "pagebeforechange.popupStack", function( e, data ) {
+							if ( typeof( data.toPage ) === "object" && data.toPage.jqmData( "url" ) !== $.mobile.activePage.jqmData( "url" ) ) {
+								// prevent the changePage from happening
+								e.preventDefault();
+								e.stopImmediatePropagation();
+
+								self._closeAllPopups( function() {
+									// Resume the changePage
+									$.mobile.changePage( data.toPage, data.options );
+								});
+							}
+						});
+					}
+
+					this._push( popup );
+				},
+
+				pop: function( popup ) {
+					// If we're popping the last popup, get rid of the pagebeforechange handler
+					if ( 1 === this._stack.length && popup === this._stack[ 0 ] ) {
+						$( window ).unbind( "pagebeforechange.popupStack" );
+					}
+					this._pop( popup );
+				},
+
+				_getPathPrefix: function() {
+					var ret = "";
+
+					if ( $.mobile.activePage != $.mobile.firstPage ) {
+						var activeEntry = $.mobile.urlHistory.getActive(),
+								activeUrl = activeEntry.url;
+
+						// If the hash is of the form "/some/path/to/some/file" then we only need to keep it if the location's
+						// pathname is not the same.
+						//
+						// I have seen locations like this:
+						// http://server/path/to/filename.html#/path/to/filename.html
+						// In this case, we don't need to keep the path following the hash
+						if ( activeUrl.substr( 0, 1 ) != "/" || activeUrl != location.pathname ) {
+							ret = activeUrl;
+						}
+					}
+
+					return ret;
+				},
+
+				_setPath: function( newPath ) {
+					var self = this;
+
+					// listen for hashchange that will occur when we set it to null dialog hash
+					if ( newPath != $.mobile.path.get() ) {
+						// Pushing this newPath will result in a hashchange, so attach then
+						$( window ).one( "hashchange", function() {
+							self._bindHashChange();
+						} );
+					}
+					else {
+						// Pushing this newPath will not result in a hashchange, so attach directly
+						this._bindHashChange();
+					}
+
+					// set hash to non-linkable dialog url
+					$.mobile.path.set( newPath );
+				}
+			}, ( $.mobile.popupsHaveOneHistoryEntry
+				// One history entry for all popups
+				? {
+					_bindHashChange: function() {
+						var self = this;
+						$( window ).one( "hashchange.popupStack", function() {
+							$.each( self._stack, function( key, value ) {
+								value._realClose();
+							});
+							self._stack = [];
+							if ( self._closeAllPopups.doneCB ) {
+								self._closeAllPopups.doneCB();
+								self._closeAllPopups.doneCB = undefined;
+							}
+						});
+					},
+
+					_closeAllPopups: function ( doneCB ) {
+						if ( this._stack.length > 0 ) {
+							this._closeAllPopups.doneCB = doneCB;
+							window.history.back();
+						}
+					},
+
+					_push: function( popup ) {
+						if ( this._stack.length === 0 ) {
+							this._setPath( this._getPathPrefix() + $.mobile.dialogHashKey );
+						}
+						this._stack.push( popup );
+					},
+
+					_pop: function( popup ) {
+						var idx = this._stack.indexOf( popup );
+
+						if ( idx < 0 ) {
+							popup._realClose();
+						}
+						else
+						if ( this._stack.length === 1 ) {
+							window.history.back();
+						}
+						else {
+							this._stack.splice( idx, 1 );
+							popup._realClose();
+						}
+					}
+				}
+				// One history entry per popup
+				: {
+					_bindHashChange: function() {
+						var self = this;
+						$( window ).one( "hashchange.popupStack", function() {
+							if ( self._stack.length >= 1 ) {
+								self._stack.pop()._realClose();
+							}
+
+							if ( self._stack.length > 0 ) {
+								self._bindHashChange();
+							}
+							else
+							if ( self._closeAllPopups.doneCB ) {
+								self._closeAllPopups.doneCB();
+								self._closeAllPopups.doneCB = undefined;
+							}
+
+							if ( self._closeAllPopups.doneCB ) {
+								self.pop( self._stack [ self._stack.length - 1 ] );
+							}
+						} );
+					},
+
+					_closeAllPopups: function( doneCB ) {
+						if ( this._stack.length > 0 ) {
+							this._closeAllPopups.doneCB = doneCB;
+							this.pop( this._stack[ this._stack.length - 1 ] );
+						}
+					},
+
+					_push: function(popup) {
+						if ( this._stack.length > 0 ) {
+							$( window ).unbind( "hashchange.popupStack" );
+						}
+						this._stack.push( popup );
+						this._setPath( this._getPathPrefix() + "&jqmNPopups=" + this._stack.length );
+					},
+
+					_pop: function( popup ) {
+						var self = this,
+								idx = this._stack.indexOf( popup );
+
+						if ( idx < 0 ) {
+							popup._realClose();
+						}
+						else
+						if ( idx === this._stack.length - 1 ) {
+							window.history.back();
+						}
+						else {
+							this._stack.splice( idx, 1 );
+							popup._realClose();
+							$( window ).unbind( "hashchange.popupStack" );
+							$( window ).one( "hashchange", function() {
+								self._bindHashChange();
+							});
+							window.history.back();
+						}
+					}
+				}));
+
 	$.widget( "mobile.popup", $.mobile.widget, {
 		options: {
 			theme: null,
@@ -83,7 +270,8 @@ define( [ "jquery",
 				if ( matches && matches.length > 1 ) {
 					currentTheme = matches[ 1 ];
 					break;
-				} else {
+				}
+				else {
 					currentTheme = null;
 				}
 			}
@@ -118,7 +306,7 @@ define( [ "jquery",
 		},
 
 		_setCorners: function( value ) {
-			this._ui.container[value ? "addClass" : "removeClass"]( "ui-corner-all" );
+			this._ui.container[ value ? "addClass" : "removeClass" ]( "ui-corner-all" );
 			this.options.corners = value;
 			this.element.attr( "data-" + ( $.mobile.ns || "" ) + "corners", value );
 		},
@@ -138,13 +326,14 @@ define( [ "jquery",
 		},
 
 		_setOption: function( key, value ) {
-			var setter = "_set" + key.replace( /^[a-z]/, function(c) {
+			var setter = "_set" + key.replace( /^[a-z]/, function( c ) {
 				return c.toUpperCase();
 			});
 
-			if ( this[setter] !== undefined ) {
-				this[setter]( value );
-			} else {
+			if ( this[ setter ] !== undefined ) {
+				this[ setter ]( value );
+			}
+			else {
 				$.mobile.widget.prototype._setOption.apply( this, arguments );
 			}
 		},
@@ -165,7 +354,8 @@ define( [ "jquery",
 
 			if ( roomtop > menuHeight / 2 && roombot > menuHeight / 2 ) {
 				newtop = y - halfheight;
-			} else {
+			}
+			else {
 				// 30px tolerance off the edges
 				newtop = roomtop > roombot ? scrollTop + screenHeight - menuHeight - 30 : scrollTop + 30;
 			}
@@ -173,30 +363,22 @@ define( [ "jquery",
 			// If the menuwidth is smaller than the screen center is
 			if ( menuWidth < maxwidth ) {
 				newleft = ( screenWidth - menuWidth ) / 2;
-			} else {
+			}
+			else {
 				//otherwise insure a >= 30px offset from the left
 				newleft = x - menuWidth / 2;
 
 				// 10px tolerance off the edges
 				if ( newleft < 10 ) {
 					newleft = 10;
-				} else if ( ( newleft + menuWidth ) > screenWidth ) {
+				}
+				else
+				if ( ( newleft + menuWidth ) > screenWidth ) {
 					newleft = screenWidth - menuWidth - 10;
 				}
 			}
 
 			return { x: newleft, y: newtop };
-		},
-
-		_bindHashChange: function() {
-			var self = this;
-			$( window ).one( "hashchange.popup", function() {
-				self.close( true );
-			});
-		},
-
-		_unbindHashChange: function() {
-			$( window ).unbind( "hashchange.popup" );
 		},
 
 		open: function( x, y ) {
@@ -206,15 +388,15 @@ define( [ "jquery",
 						self._ui.screen.height( $( document ).height() );
 					},
 					coords = this._placementCoords(
-							(undefined === x ? window.innerWidth / 2 : x),
-							(undefined === y ? window.innerHeight / 2 : y) );
+							( undefined === x ? window.innerWidth / 2 : x ),
+							( undefined === y ? window.innerHeight / 2 : y ) );
 
 				this._ui.screen
 						.height( $( document ).height() )
 						.removeClass( "ui-screen-hidden" );
 
 				if ( this.options.fade ) {
-					this._ui.screen.animate( {opacity: 0.5}, "fast" );
+					this._ui.screen.animate( { opacity: 0.5 }, "fast" );
 				}
 
 				this._ui.container
@@ -232,19 +414,16 @@ define( [ "jquery",
 					onAnimationComplete();
 				}
 
-				// listen for hashchange that will occur when we set it to null dialog hash
-				$( window ).one( "hashchange", function() {
-					self._bindHashChange();
-				});
-
-				// set hash to non-linkable dialog url
-				$.mobile.path.set( ( ( $.mobile.activePage != $.mobile.firstPage) ? $.mobile.urlHistory.getActive().url : "" ) + "&ui-state=dialog" );
-
+				popupStack.push( this );
 				this._isOpen = true;
 			}
 		},
 
-		close: function( fromHash ) {
+		close: function() {
+			popupStack.pop( this );
+		},
+
+		_realClose: function() {
 			if ( this._isOpen ) {
 				var self = this,
 					onAnimationComplete = function() {
@@ -270,17 +449,10 @@ define( [ "jquery",
 				}
 
 				if ( this.options.fade ) {
-					this._ui.screen.animate( {opacity: 0.0}, "fast", hideScreen );
-				} else {
-					hideScreen();
+					this._ui.screen.animate( { opacity: 0.0 }, "fast", hideScreen );
 				}
-
-				// unbind listener that comes with opening popup
-				this._unbindHashChange();
-
-				// if the close event did not come from an internal hash listener, reset URL back
-				if ( !fromHash ) {
-					window.history.back();
+				else {
+					hideScreen();
 				}
 			}
 		}
