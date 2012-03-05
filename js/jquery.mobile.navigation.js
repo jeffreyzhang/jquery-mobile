@@ -161,9 +161,11 @@ define( [
 			convertUrlToDataUrl: function( absUrl ) {
 				var u = path.parseUrl( absUrl );
 				if ( path.isEmbeddedPage( u ) ) {
+					var match = u.hash.match(/(&jqmNPopups=[0-9][0-9]*)/),
+							realDialogHashKey = match ? match[1] : dialogHashKey;
 				    // For embedded pages, remove the dialog hash key as in getFilePath(),
 				    // otherwise the Data Url won't match the id of the embedded Page.
-					return u.hash.split( dialogHashKey )[0].replace( /^#/, "" );
+					return u.hash.split( realDialogHashKey )[0].replace( /^#/, "" );
 				} else if ( path.isSameDomain( u, documentBase ) ) {
 					return u.hrefNoHash.replace( documentBase.domain, "" );
 				}
@@ -180,8 +182,11 @@ define( [
 
 			//return the substring of a filepath before the sub-page key, for making a server request
 			getFilePath: function( path ) {
-				var splitkey = '&' + $.mobile.subPageUrlKey;
-				return path && path.split( splitkey )[0].split( dialogHashKey )[0];
+				var splitkey = '&' + $.mobile.subPageUrlKey,
+						match = (path || "").match(/(&jqmNPopups=[0-9][0-9]*)/),
+						realDialogHashKey = match ? match[1] : dialogHashKey;
+
+				return path && path.split( splitkey )[0].split( realDialogHashKey )[0];
 			},
 
 			//set location hash to path
@@ -207,7 +212,7 @@ define( [
 
 			//remove the preceding hash, any query params, and dialog notations
 			cleanHash: function( hash ) {
-				return path.stripHash( hash.replace( /\?.*$/, "" ).replace( dialogHashKey, "" ) );
+				return path.stripHash( hash.replace( /\?.*$/, "" ).replace( /&(ui-state=dialog|jqmNPopups=[0-9][0-9]*)/, "" ) );
 			},
 
 			//check whether a url is referencing the same domain, or an external domain or different protocol
