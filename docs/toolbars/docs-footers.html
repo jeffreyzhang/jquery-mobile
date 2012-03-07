@@ -1,5 +1,5 @@
 <!DOCTYPE html> 
-<html class="ui-mobile-rendering"> 
+<html>
 	<head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1"> 
@@ -65,13 +65,14 @@
 
 			<p>This creates this toolbar with buttons sitting in a row</p>
 
-
 			<div data-role="footer" class="ui-bar">
 				<a href="index.html" data-icon="delete">Remove</a>
 				<a href="index.html" data-icon="plus">Add</a>
 				<a href="index.html" data-icon="arrow-u">Up</a>
 				<a href="index.html" data-icon="arrow-d">Down</a>
 			</div>
+			
+			</p>Note that <code>.ui-bar</code> should not be added to header or footer bars that span the full width of the page, as the additional padding will cause a full-width element to break out of its parent container. To add padding inside of a full-width toolbar we recommend wrapping the toolbar's contents in an element, and applying the padding to that element instead.</p>
 			
 			<p>To group buttons together into a button set, wrap the links in a wrapper with <code> data-role=&quot;controlgroup&quot;</code> and <code>data-type=&quot;horizontal&quot;</code> attributes.</p>
 			
@@ -145,7 +146,7 @@
 					</div><!-- /content -->
 
 					<div data-role="footer" class="footer-docs" data-theme="c">
-							<p>&copy; 2011 The jQuery Project</p>
+							<p>&copy; 2011-12 The jQuery Project</p>
 					</div>
 
 					</div><!-- /page -->

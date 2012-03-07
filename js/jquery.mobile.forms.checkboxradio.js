@@ -21,7 +21,7 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 			input = this.element,
 			// NOTE: Windows Phone could not find the label through a selector
 			// filter works though.
-			label = input.closest( "form,fieldset,:jqmData(role='page')" ).find( "label" ).filter( "[for='" + input[ 0 ].id + "']" ),
+			label = $( input ).closest( "form,fieldset,:jqmData(role='page'),:jqmData(role='dialog')" ).find( "label" ).filter( "[for='" + input[ 0 ].id + "']" ),
 			inputtype = input.attr( "type" ),
 			mini = input.closest( "form,fieldset" ).jqmData('mini'),
 			checkedState = inputtype + "-on",
@@ -37,6 +37,10 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 			return;
 		}
 
+		if( !label.length ){
+			this.raise( inputtype + " inputs require a label for enhancement" );
+		}
+
 		// Expose for other methods
 		$.extend( this, {
 			label: label,
@@ -47,9 +51,9 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 			uncheckedicon: uncheckedicon
 		});
 
-		// If there's no selected theme...
+		// If there's no selected theme check the data attr
 		if( !this.options.theme ) {
-			this.options.theme = this.element.jqmData( "theme" );
+			this.options.theme = $.mobile.getInheritedTheme( this.element, "c" );
 		}
 
 		label.buttonMarkup({
@@ -60,11 +64,10 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 		});
 
 		// Wrap the input + label in a div
-		var wrapper = document.createElement('div');		
-		wrapper.className = 'ui-' + inputtype;	
-		input[0].parentNode.insertBefore(wrapper,input[0]);
-		wrapper.appendChild(input[0]);				
-		wrapper.appendChild(label[0]);
+		var wrapper = document.createElement('div');
+		wrapper.className = 'ui-' + inputtype;
+
+		input.add( label ).wrapAll( wrapper );
 
 		label.bind({
 			vmouseover: function( event ) {
@@ -80,8 +83,8 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 				}
 
 				self._cacheVals();
-				input.attr( "checked", inputtype === "radio" && true || !input.attr( "checked" ) );
-				//input.prop( "checked", inputtype === "radio" && true || !input.attr( "checked" ) );
+
+				input.prop( "checked", inputtype === "radio" && true || !input.prop( "checked" ) );
 
 				// trigger click handler's bound directly to the input as a substitute for
 				// how label clicks behave normally in the browsers
@@ -93,12 +96,11 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 				// Input set for common radio buttons will contain all the radio
 				// buttons, but will not for checkboxes. clearing the checked status
 				// of other radios ensures the active button state is applied properly
-				self._getInputSet().not( input ).removeAttr( "checked" );
+				self._getInputSet().not( input ).prop( "checked", false );
 
 				self._updateAll();
 				return false;
 			}
-
 		});
 
 		input
@@ -113,11 +115,11 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 					// Adds checked attribute to checked input when keyboard is used
 					if ( $this.is( ":checked" ) ) {
 
-						$this.attr( "checked", "checked" );
-						self._getInputSet().not($this).removeAttr( "checked" );
+						$this.prop( "checked", true);
+						self._getInputSet().not($this).prop( "checked", false );
 					} else {
 
-						$this.removeAttr( "checked" );
+						$this.prop( "checked", false );
 					}
 
 					self._updateAll();
@@ -159,7 +161,9 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 		this._getInputSet().each(function() {
 			var $this = $(this);
 
-			if ( $this.is( ":checked" ) || self.inputtype === "checkbox" ) {
+			// NOTE getAttribute is used here to deal with an issue with the :checked
+			//      selector. see #3597
+			if ( $this.prop( "checked" ) || self.inputtype === "checkbox" ) {
 				$this.trigger( "change" );
 			}
 		})
@@ -173,8 +177,7 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 
 		// input[0].checked expando doesn't always report the proper value
 		// for checked='checked'
-
-		if ( input[ 0 ].getAttribute( "checked" ) ) {
+		if ( $( input[ 0 ] ).prop( "checked" ) ) {
 			label.addClass( this.checkedClass ).removeClass( this.uncheckedClass );
 			icon.addClass( this.checkedicon ).removeClass( this.uncheckedicon );
 		} else {

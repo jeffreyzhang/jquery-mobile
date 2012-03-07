@@ -171,7 +171,7 @@ define( [ "jquery", "../external/requirejs/text!../version.txt", "./jquery.mobil
 
 			var e = el[ 0 ],
 				ltr = "",
-				re = /ui-(bar|body)-([a-z])\b/,
+				re = /ui-(bar|body|overlay)-([a-z])\b/,
 				c, m;
 
 			while ( e ) {
@@ -203,15 +203,40 @@ define( [ "jquery", "../external/requirejs/text!../version.txt", "./jquery.mobil
 				.data("page");
 		},
 
-		// TODO not excited about the name here :/
-		// TODO use parentNode traversal to speed things up
 		enhanceable: function( $set ) {
-			var count = $set.length, $newSet = $();
+			return this.haveParents( $set, "enhance" );
+		},
 
-			for( var i = 0; i < count; i++ ) {
-				var $element = $set.eq(i);
+		hijackable: function( $set ) {
+			return this.haveParents( $set, "ajax" );
+		},
 
-				if ( !$element.closest( ":jqmData(enhance='false')").length ) {
+		haveParents: function( $set, attr ) {
+			if( !$.mobile.ignoreContentEnabled ){
+				return $set;
+			}
+
+			var count = $set.length,
+				$newSet = $(),
+				e, $element, excluded;
+
+			for ( var i = 0; i < count; i++ ) {
+				$element = $set.eq( i );
+				excluded = false;
+				e = $set[ i ];
+
+				while ( e ) {
+					var c = e.getAttribute ? e.getAttribute( "data-" + $.mobile.ns + attr ) : "";
+
+					if ( c === "false" ) {
+						excluded = true;
+						break;
+					}
+
+					e = e.parentNode;
+				}
+
+				if ( !excluded ) {
 					$newSet = $newSet.add( $element );
 				}
 			}
@@ -272,6 +297,15 @@ define( [ "jquery", "../external/requirejs/text!../version.txt", "./jquery.mobil
 	// to return the html encoded version of the text in all cases. (thus the name)
 	$.fn.getEncodedText = function() {
 		return $( "<div/>" ).text( $(this).text() ).html();
+	};
+
+	// fluent helper function for the mobile namespaced equivalent
+	$.fn.jqmEnhanceable = function() {
+		return $.mobile.enhanceable( this );
+	};
+
+	$.fn.jqmHijackable = function() {
+		return $.mobile.hijackable( this );
 	};
 
 	// Monkey-patching Sizzle to filter the :jqmData selector
