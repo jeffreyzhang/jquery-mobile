@@ -391,29 +391,36 @@ $.widget( "mobile.slider", $.mobile.widget, {
 		}
 	},
 
-        _setTheme: function(value) {
-            value = $.mobile.validTheme(this.element, value, "c");
-            this.handle.buttonMarkup({theme: value});
-            this.options.theme = value;
-            this.handle.attr("data-" + ($.mobile.ns || "") + "theme", value);
-        },
+	_setMini: function(value) {
+		this.slider[value ? "addClass" : "removeClass"]("ui-slider-mini");
+		this.options.mini = value;
+		this.element.attr("data-" + ($.mobile.ns || "") + "mini", value);
+	},
 
-        _setTrackTheme: function(value) {
-            var currentTheme = $.mobile.validTheme(this.element, this.options.trackTheme, "c");
+	_setTheme: function(value) {
+		value = $.mobile.validTheme(this.element, value, "c");
+		this.handle.buttonMarkup({theme: value});
+		this.options.theme = value;
+		this.handle.attr("data-" + ($.mobile.ns || "") + "theme", value);
+	},
 
-            value = $.mobile.validTheme(this.element, value, "c");
+	_setTrackTheme: function(value) {
+		var currentTheme = $.mobile.validTheme(this.element, this.options.trackTheme, "c");
 
-            this.slider
-                .removeClass("ui-btn-down-" + currentTheme)
-                .addClass("ui-btn-down-" + value);
+		value = $.mobile.validTheme(this.element, value, "c");
 
-            if (this.handleSpans)
-                this.handleSpans
-                    .removeClass("ui-btn-down-" + currentTheme)
-                    .addClass("ui-btn-down-" + value);
+		this.slider
+			.removeClass("ui-btn-down-" + currentTheme)
+			.addClass("ui-btn-down-" + value);
 
-            this.options.trackTheme = value;
-        },
+		if (this.handleSpans) {
+			this.handleSpans
+				.removeClass("ui-btn-down-" + currentTheme)
+				.addClass("ui-btn-down-" + value);
+		}
+
+		this.options.trackTheme = value;
+	},
 
 	_setDisabled: function(value) {
 		if (value) {
