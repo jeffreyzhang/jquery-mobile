@@ -194,6 +194,8 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 
 	_setDisabled: function(value) {
 		this.element.attr("disabled", value).parent()[value ? "addClass" : "removeClass"]("ui-disabled");
+		this.options.disabled = value;
+		this.element.attr("data-" + ($.mobile.ns || "") + "disabled", value);
 	}
 });
 
