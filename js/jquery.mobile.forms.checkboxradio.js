@@ -192,6 +192,12 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, {
 		}
 	},
 
+	_setTheme: function(value) {
+		this.label.buttonMarkup({theme: $.mobile.validTheme(this.element, value, "c")});
+		this.options.theme = value;
+		this.element.attr("data-" + ($.mobile.ns || "") + "theme", value);
+	},
+
 	_setDisabled: function(value) {
 		this.element.attr("disabled", value).parent()[value ? "addClass" : "removeClass"]("ui-disabled");
 		this.options.disabled = value;
