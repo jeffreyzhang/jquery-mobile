@@ -115,15 +115,17 @@ $.widget( "mobile.button", $.mobile.widget, {
 		return $.Widget.prototype._setOption.call(this, "disabled", value );
 	},
 
-        _setOption: function(key, value) {
-            if (key === "disabled")
-                this._setDisabled(value);
-            else {
-                var options = {};
-                options[key] = value;
-                this.button.buttonMarkup(options);
-            }
-        },
+	_setOption: function(key, value) {
+		if (key === "disabled")
+			this._setDisabled(value);
+		else {
+			var options = {};
+			options[key] = value;
+			this.button.buttonMarkup(options);
+			this.options[key] = value;
+			this.element.attr("data-" + ($.mobile.ns || "") + key.replace(/([A-Z])/, "-$1").toLowerCase());
+		}
+	},
 
 	refresh: function() {
 		var $el = this.element;
@@ -134,7 +136,7 @@ $.widget( "mobile.button", $.mobile.widget, {
 			this.enable();
 		}
 
-                // Grab the button's text element from its implementation-independent data item
+    // Grab the button's text element from its implementation-independent data item
 		$(this.button.data( 'buttonElements' ).text).text( $el.text() || $el.val() );
 	}
 });
