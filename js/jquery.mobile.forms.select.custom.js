@@ -511,6 +511,15 @@ define( [
 				self.list.listview();
 			},
 
+			_setOverlayTheme: function(value) {
+				value = $.mobile.validTheme(this._button(), value, "a");
+				this.listbox
+					.removeClass("ui-body-" + $.mobile.validTheme(this.listbox, this.options.overlayTheme, "a"))
+					.addClass("ui-body-" + value);
+				this.options.overlayTheme = value;
+				this.element.attr("data-" + ($.mobile.ns || "") + "overlay-theme", value);
+			},
+
 			_button: function(){
 				return $( "<a>", {
 					"href": "#",

@@ -36,7 +36,7 @@ $.widget( "mobile.selectmenu", $.mobile.widget, {
 		this.element.attr( "disabled", value );
 		this.button.attr( "aria-disabled", value );
 		this.button[value ? "addClass" : "removeClass"]("ui-disabled");
-		return $.Widget.prototype._setOption( "disabled", value );
+		this.options.disabled = true;
 	},
 
 	_focusButton : function() {
