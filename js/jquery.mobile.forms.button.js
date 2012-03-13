@@ -111,6 +111,7 @@ $.widget( "mobile.button", $.mobile.widget, {
 
 	_setDisabled: function(value) {
 		this.element.attr( "disabled", value );
+		this.button.attr( "aria-disabled", value );
 		this.button[value ? "addClass" : "removeClass"]( "ui-disabled" ).attr( "aria-disabled", value );
 		return $.Widget.prototype._setOption.call(this, "disabled", value );
 	},
@@ -119,11 +120,9 @@ $.widget( "mobile.button", $.mobile.widget, {
 		if (key === "disabled")
 			this._setDisabled(value);
 		else {
-			var options = {};
-			options[key] = value;
-			this.button.buttonMarkup(options);
+			this.button.buttonMarkup((function() {var ret = {}; ret[key] = value; return ret;})());
 			this.options[key] = value;
-			this.element.attr("data-" + ($.mobile.ns || "") + key.replace(/([A-Z])/, "-$1").toLowerCase());
+			this.element.attr("data-" + ($.mobile.ns || "") + (key.replace(/([A-Z])/, "-$1").toLowerCase()), value);
 		}
 	},
 
