@@ -71,11 +71,10 @@
 		var $radioBtns = $( '#radio-active-btn-test input' ),
 			singleActiveAndChecked = function(){
 				same( $( "#radio-active-btn-test .ui-radio-on" ).length, 1, "there should be only one active button" );
-				// TODO core appears to be reporting the wrong value in our test browsers
-				// revisit when we hear back
+				// Use the .checked property, not the checked attribute which is not dynamic
 				var numChecked = 0;
 				$( "#radio-active-btn-test input" ).each(function(i, e) {
-					if( e.getAttribute( "checked" )) {
+					if( e.checked ) {
 						numChecked++;
 					}
 				});
@@ -260,5 +259,13 @@
 		}
 
 		ok( $checkbox.parent().hasClass("ui-checkbox"), "enhancement has occured");
+	});
+	
+	test( "Icon positioning", function() {
+		var bottomicon = $("[for='bottomicon']")
+			topicon = $("[for='topicon']");
+
+		ok( bottomicon.hasClass("ui-btn-icon-bottom"), "Icon position set on label adds the appropriate class." );
+		ok( topicon.hasClass("ui-btn-icon-top"), "Icon position set on input adds the appropriate class to the label." );
 	});
 })(jQuery);
