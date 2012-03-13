@@ -38,6 +38,17 @@ $.widget( "mobile.selectmenu", $.mobile.widget, {
 		this.options.disabled = true;
 	},
 
+	_setOption: function( key, value ) {
+		// This will take care of those options that buttonMarkup knows how to handle
+		this.button.buttonMarkup((function() {var ret = {}; ret[key] = value; return ret;})());
+		this.options[key] = value;
+		this.element.attr("data-" + ($.mobile.ns || "") + (key.replace(/([A-Z])/, "-$1").toLowerCase()), value);
+
+		// Handle the rest the usual way - it doesn't matter if we end up with the
+		// buttonMarkup-related options in this call, because those are not handled anyway
+		$.mobile.widget.prototype._setOption.apply(this, arguments);
+	},
+
 	_focusButton : function() {
 		var self = this;
 
