@@ -22,6 +22,7 @@ $.widget( "mobile.textinput", $.mobile.widget, {
 			o = this.options,
 			theme = o.theme || $.mobile.getInheritedTheme( this.element, "c" ),
 			themeclass  = " ui-body-" + theme,
+			self = this,
 			mini = input.jqmData("mini") == true,
 			miniclass = mini ? " ui-mini" : "",
 			focusedEl, clearbtn;
@@ -49,6 +50,7 @@ $.widget( "mobile.textinput", $.mobile.widget, {
 		if ( input.is( "[type='search'],:jqmData(type='search')" ) ) {
 
 			focusedEl = input.wrap( "<div class='ui-input-search ui-shadow-inset ui-btn-corner-all ui-btn-shadow ui-icon-searchfield" + themeclass + miniclass + "'></div>" ).parent();
+			this._themedElement = focusedEl;
 			clearbtn = $( "<a href='#' class='ui-input-clear' title='clear text'>clear text</a>" )
 				.bind('click', function( event ) {
 					input
@@ -78,6 +80,7 @@ $.widget( "mobile.textinput", $.mobile.widget, {
 			input.bind('paste cut keyup focus change blur', toggleClear);
 
 		} else {
+			this._themedElement = input;
 			input.addClass( "ui-corner-all ui-shadow-inset" + themeclass + miniclass );
 		}
 
@@ -131,14 +134,15 @@ $.widget( "mobile.textinput", $.mobile.widget, {
 		}
 	},
 
-	disable: function(){
-		( this.element.attr( "disabled", true ).is( "[type='search'],:jqmData(type='search')" ) ?
-			this.element.parent() : this.element ).addClass( "ui-disabled" );
+	_setTheme: function( value ) {
+		this._themedElement
+			.removeClass( "ui-body-" + ( this.options.theme || $.mobile.getInheritedTheme( this._themedElement, "c" ) ) )
+			.addClass( "ui-body-" + ( value || $.mobile.getInheritedTheme( this._themedElement, "c" ) ) );
 	},
 
-	enable: function(){
-		( this.element.attr( "disabled", false).is( "[type='search'],:jqmData(type='search')" ) ?
-			this.element.parent() : this.element ).removeClass( "ui-disabled" );
+	_setDisabled: function( value ) {
+		( this.element.prop( "disabled", value ).is( "[type='search'],:jqmData(type='search')" ) ?
+			this.element.parent() : this.element )[ value ? "addClass" : "removeClass" ]( "ui-disabled" );
 	}
 });
 
