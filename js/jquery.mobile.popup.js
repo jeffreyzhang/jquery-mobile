@@ -97,6 +97,7 @@ define( [ "jquery",
 								value._realClose();
 							});
 							self._stack = [];
+							$( window ).unbind( "pagebeforechange.popupStack" );
 							if ( self._closeAllPopups.doneCB ) {
 								self._closeAllPopups.doneCB();
 								self._closeAllPopups.doneCB = undefined;
