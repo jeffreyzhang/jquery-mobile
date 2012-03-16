@@ -152,7 +152,7 @@ define( [ "jquery",
 								self._closeAllPopups.doneCB = undefined;
 							}
 
-							if ( self._closeAllPopups.doneCB ) {
+							if ( self._closeAllPopups.doneCB && self._stack.length > 0 ) {
 								self.pop( self._stack [ self._stack.length - 1 ] );
 							}
 						} );
